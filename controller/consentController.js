@@ -2,16 +2,16 @@ import { request, response } from "express";
 import { consentModel } from "../models";
 import { Sequelize } from "sequelize";
 import { Op } from "sequelize";
+import { getData } from "../utils";
 
 const ListConsents = async (request, response) => {
   try {
-    const { email = "", id = null, by = null } = request.query;
+    // const { email = "", id = , by = "" } = request.query;
 
-    const data = await consentModel.findAll({
-      //   where: Sequelize.or({ email }, { id }, { createdBy: by }),
-      attributes: ["email"],
-      group: "createdBy",
-    });
+    // const data = await consentModel.findAll({
+    //   where: Sequelize.or({ email: email }, { id: id }, { createdBy: by }),
+    // });
+    const data = await consentModel.findAll();
     response.status(200).send(data);
   } catch (error) {
     response.status(400).send(error.message);
@@ -70,4 +70,42 @@ const deleteConsents = async (request, response) => {
   }
 };
 
-export default { ListConsents, AddConsents, updateConsents, deleteConsents };
+const fileUpload = async (request, response) => {
+  try {
+    const { originalname } = request.file;
+    const { id } = request.currentUser;
+
+    console.log("id:::", id);
+
+    const data = await getData(originalname);
+    console.log("data", data);
+
+    // for (let record of data) {
+    //   // console.log("record", record);
+    //   await consentModel.create({
+    //     email: record.email,
+    //     consentFor: record.consentFor,
+    //     createdBy: 2,
+    //   });
+    // }
+
+    const validateData = data.map((eachdata) => {
+      eachdata = { ...eachdata, createdBy: id };
+      return eachdata;
+    });
+    console.log("validateData:::", validateData);
+    await consentModel.bulkCreate(validateData);
+
+    response.status(200).send(`All the Data of file uploaded successfully.`);
+  } catch (error) {
+    response.status(400).send(error.message);
+  }
+};
+
+export default {
+  ListConsents,
+  AddConsents,
+  updateConsents,
+  deleteConsents,
+  fileUpload,
+};

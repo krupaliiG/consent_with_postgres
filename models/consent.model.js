@@ -14,8 +14,8 @@ const Consent = db.connection.define("Consent", {
   },
 });
 
-Consent.sync().then(() => {
-  console.log("New Consent table created!");
-});
+// Consent.sync().then(() => {
+//   console.log("New Consent table created!");
+// });
 
 export default Consent;

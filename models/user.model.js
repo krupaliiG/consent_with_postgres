@@ -15,8 +15,8 @@ const User = db.connection.define("User", {
   },
 });
 
-User.sync().then(() => {
-  console.log("New USER table created");
-});
+// User.sync().then(() => {
+//   console.log("New USER table created");
+// });
 
 export default User;

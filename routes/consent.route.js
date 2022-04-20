@@ -1,7 +1,7 @@
 import express from "express";
 import { INTERNAL_LINKS } from "../constant";
 import { consentController } from "../controller";
-import { authentication } from "../middleware";
+import { authentication, upload } from "../middleware";
 
 export default express
   .Router()
@@ -19,4 +19,10 @@ export default express
   .delete(
     INTERNAL_LINKS.CONSENT.DELETE_CONSENTS,
     consentController.deleteConsents
+  )
+  .post(
+    INTERNAL_LINKS.CONSENT.FILE_UPLOAD,
+    authentication,
+    upload.single("filedata"),
+    consentController.fileUpload
   );

@@ -5,6 +5,9 @@ export default {
     BASE_URL: "/api/v1/users",
     REGISTER: "/register",
     LOGIN: "/login",
+    USER_DETAIL: "/userdetail",
+    CHANGE_PASSWORD: "/change-password",
+    USERS_LIST: "/",
   },
 
   CONSENT: {
@@ -13,5 +16,6 @@ export default {
     ADD_CONSENTS: "/giveConsent",
     UPDATE_CONSENTS: "/:id",
     DELETE_CONSENTS: "/:id",
+    FILE_UPLOAD: "/fromfile",
   },
 };
