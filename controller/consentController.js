@@ -1,20 +1,13 @@
-import { request, response } from "express";
-import { consentModel } from "../models";
-import { Sequelize } from "sequelize";
-import { Op } from "sequelize";
 import { getData } from "../utils";
+import { db } from "../config";
+const models = db.connection.models;
 
 const ListConsents = async (request, response) => {
   try {
-    // const { email = "", id = , by = "" } = request.query;
-
-    // const data = await consentModel.findAll({
-    //   where: Sequelize.or({ email: email }, { id: id }, { createdBy: by }),
-    // });
-    const data = await consentModel.findAll();
-    response.status(200).send(data);
+    const data = await models.consent.findAll();
+    response.status(200).send({ success: true, data });
   } catch (error) {
-    response.status(400).send(error.message);
+    response.status(400).send({ success: false, message: error.message });
   }
 };
 
@@ -23,15 +16,46 @@ const AddConsents = async (request, response) => {
     const { email, consent_for } = request.body;
     const { id } = request.currentUser;
 
-    const data = await consentModel.create({
+    const data = await models.consent.create({
       email,
       consentFor: consent_for,
       createdBy: id,
     });
 
-    response.status(200).send("Consent added successfully!");
+    response
+      .status(200)
+      .send({ success: true, message: "Consent added successfully!" });
   } catch (error) {
-    response.status(400).send(error.message);
+    response.status(400).send({ success: false, message: error.message });
+  }
+};
+
+const GroupConsents = async (request, response) => {
+  try {
+    const data = await models.consent.findAll({
+      attributes: [
+        [db.Sequelize.fn("DISTINCT", db.Sequelize.col(`date`)), "date"],
+        [
+          db.Sequelize.literal(
+            `(select jsonb_agg(cs) FROM "consents" as cs where cs."date" = consent."date")`
+          ),
+          "data",
+        ],
+      ],
+      raw: true,
+    });
+
+    // postgres raw query
+    //     SELECT distinct DATE("createdAt") AS date,
+    // (select jsonb_agg(cs) from "Consents" as cs where DATE(cs."createdAt") = DATE(c."createdAt"))
+    // FROM "Consents" as c;
+
+    response.status(200).send({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    response.status(400).send({ success: false, message: error.message });
   }
 };
 
@@ -40,7 +64,7 @@ const updateConsents = async (request, response) => {
     const { id } = request.params;
     const { consent_for, email } = request.body;
 
-    await consentModel.update(
+    await models.consent.update(
       { consentFor: consent_for },
       {
         where: {
@@ -48,10 +72,12 @@ const updateConsents = async (request, response) => {
         },
       }
     );
-    console.log(id);
-    response.status(200).send(`Consent with id ${id} updated successfully!`);
+    response.status(200).send({
+      success: true,
+      message: `Consent with id ${id} updated successfully!`,
+    });
   } catch (error) {
-    response.status(400).send(error.message);
+    response.status(400).send({ success: false, message: error.message });
   }
 };
 
@@ -59,14 +85,17 @@ const deleteConsents = async (request, response) => {
   try {
     const { id } = request.params;
 
-    await consentModel.destroy({
+    await models.consent.destroy({
       where: {
         id,
       },
     });
-    response.status(200).send(`Consent with id ${id} deleted successfully!`);
+    response.status(200).send({
+      success: true,
+      message: `Consent with id ${id} deleted successfully!`,
+    });
   } catch (error) {
-    response.status(400).send(error.message);
+    response.status(400).send({ success: false, message: error.message });
   }
 };
 
@@ -75,36 +104,26 @@ const fileUpload = async (request, response) => {
     const { originalname } = request.file;
     const { id } = request.currentUser;
 
-    console.log("id:::", id);
-
     const data = await getData(originalname);
-    console.log("data", data);
-
-    // for (let record of data) {
-    //   // console.log("record", record);
-    //   await consentModel.create({
-    //     email: record.email,
-    //     consentFor: record.consentFor,
-    //     createdBy: 2,
-    //   });
-    // }
-
     const validateData = data.map((eachdata) => {
       eachdata = { ...eachdata, createdBy: id };
       return eachdata;
     });
-    console.log("validateData:::", validateData);
-    await consentModel.bulkCreate(validateData);
+    await models.consent.bulkCreate(validateData);
 
-    response.status(200).send(`All the Data of file uploaded successfully.`);
+    response.status(200).send({
+      success: true,
+      message: `All the Data of file uploaded successfully.`,
+    });
   } catch (error) {
-    response.status(400).send(error.message);
+    response.status(400).send({ success: false, message: error.message });
   }
 };
 
 export default {
   ListConsents,
   AddConsents,
+  GroupConsents,
   updateConsents,
   deleteConsents,
   fileUpload,

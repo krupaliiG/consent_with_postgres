@@ -1,21 +1,20 @@
-import { db } from "../config";
+export default (connection, DataTypes) => {
+  return connection.define("consent", {
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    consentFor: {
+      type: DataTypes.STRING,
 
-const Consent = db.connection.define("Consent", {
-  email: {
-    type: db.Sequelize.STRING,
-    allowNull: false,
-  },
-  consentFor: {
-    type: db.Sequelize.STRING,
-    allowNull: false,
-  },
-  createdBy: {
-    type: db.Sequelize.INTEGER,
-  },
-});
-
-// Consent.sync().then(() => {
-//   console.log("New Consent table created!");
-// });
-
-export default Consent;
+      allowNull: false,
+    },
+    createdBy: {
+      type: DataTypes.INTEGER,
+    },
+    date: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
+  });
+};
