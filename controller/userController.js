@@ -1,19 +1,19 @@
-import { userModel, consentModel } from "../models";
-import { request, response } from "express";
+import { db } from "../config";
 const jwt = require("jsonwebtoken");
+const models = db.connection.models;
 
 const register = async (request, response) => {
   try {
     const { username, email, password } = request.body;
 
-    const validateEmail = await userModel.findAll({
+    const validateEmail = await models.user.findAll({
       where: {
         email: email,
       },
     });
     if (validateEmail.length) throw new Error("Email already exists!");
 
-    const data = await userModel.create({
+    const data = await models.user.create({
       username,
       email,
       password,
@@ -29,7 +29,7 @@ const login = async (request, response) => {
   try {
     const { email, password } = request.body;
 
-    const validateData = await userModel.findOne({
+    const validateData = await models.user.findOne({
       where: {
         email: email,
         password: password,
@@ -49,18 +49,7 @@ const login = async (request, response) => {
 const userDetail = async (request, response) => {
   try {
     const { id } = request.currentUser;
-    // const userDetail = await userModel.findOne({
-    //   where: { id: id },
-    //   raw: true,
-    // });
-
-    // const consentByUser = await consentModel.findAll({
-    //   where: {
-    //     createdBy: id,
-    //   },
-    // });
-
-    const consentByUser = await userModel.findOne({
+    const consentByUser = await models.user.findOne({
       where: {
         id: id,
       },
@@ -69,8 +58,6 @@ const userDetail = async (request, response) => {
         as: "consentByUser",
       },
     });
-
-    console.log("consentByUser", consentByUser);
 
     response.status(200).send({
       success: true,
@@ -86,7 +73,7 @@ const changePassword = async (request, response) => {
     const { password } = request.body;
     const { id } = request.currentUser;
 
-    await userModel.update({ password }, { where: { id } });
+    await models.user.update({ password }, { where: { id } });
 
     response
       .status(200)
@@ -100,7 +87,7 @@ const usersList = async (request, response) => {
   try {
     const { id } = request.currentUser;
 
-    const usersList = await userModel.findAll();
+    const usersList = await models.user.findAll();
     response.status(200).send({ success: true, usersList: usersList });
   } catch (error) {
     response.status(400).send({ success: false, message: error.message });

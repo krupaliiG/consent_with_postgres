@@ -5,7 +5,6 @@ import { userRoute, consentRoute } from "./routes";
 const { db } = require("./config");
 import morgan from "morgan";
 import bodyParser from "body-parser";
-import { initializeModels } from "./models";
 
 // app.use(bodyParser.json());
 app.use(
@@ -28,8 +27,6 @@ db.connection
 // db.connection.sync({ alter: true }).then(() => {
 //   console.log("New table created!");
 // });
-
-initializeModels();
 
 app.listen(3000, () => {
   console.log("server started....");

@@ -1,10 +1,13 @@
 const { Sequelize } = require("sequelize");
+import { initializeModels } from "../models";
 
 const connection = new Sequelize("postgres", "postgres", "postgres", {
   host: "localhost",
   port: 5432,
   dialect: "postgres",
 });
+
+initializeModels(connection);
 
 const db = {};
 

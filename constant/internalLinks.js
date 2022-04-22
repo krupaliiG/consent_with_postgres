@@ -14,6 +14,7 @@ export default {
     BASE_URL: "/api/v1/consents",
     LIST_CONSENTS: "/",
     ADD_CONSENTS: "/giveConsent",
+    GROUP_CONSENT: "/groupBy",
     UPDATE_CONSENTS: "/:id",
     DELETE_CONSENTS: "/:id",
     FILE_UPLOAD: "/fromfile",

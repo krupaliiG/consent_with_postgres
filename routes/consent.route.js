@@ -15,9 +15,19 @@ export default express
     authentication,
     consentController.AddConsents
   )
-  .put(INTERNAL_LINKS.CONSENT.UPDATE_CONSENTS, consentController.updateConsents)
+  .get(
+    INTERNAL_LINKS.CONSENT.GROUP_CONSENT,
+    authentication,
+    consentController.GroupConsents
+  )
+  .put(
+    INTERNAL_LINKS.CONSENT.UPDATE_CONSENTS,
+    authentication,
+    consentController.updateConsents
+  )
   .delete(
     INTERNAL_LINKS.CONSENT.DELETE_CONSENTS,
+    authentication,
     consentController.deleteConsents
   )
   .post(
